@@ -1,6 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { ReactNode, useMemo, useState } from 'react';
-import { languageGroups, languages } from '../content/languages';
+import { ReactNode, useEffect, useState } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { supabase } from '../lib/supabase';
 
@@ -22,7 +21,7 @@ const navItems = [
 export function Layout({ children }: Props) {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
-  useMemo(() => {
+  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setSessionEmail(data.user?.email ?? null);
     });

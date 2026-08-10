@@ -264,71 +264,39 @@ create index if not exists saved_programs_user_idx on public.saved_programs (use
 create index if not exists bookmarks_user_idx on public.bookmarks (user_id);
 create index if not exists quiz_attempts_user_idx on public.quiz_attempts (user_id);
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_trigger
-    where tgname = 'set_updated_at_lessons'
-  ) then
-    create trigger set_updated_at_lessons
-    before update on public.lessons
-    for each row execute function public.set_updated_at();
-  end if;
-end $$;
+drop trigger if exists set_updated_at_lessons on public.lessons;
+create trigger set_updated_at_lessons
+before update on public.lessons
+for each row execute function public.set_updated_at();
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_trigger
-    where tgname = 'set_updated_at_topics'
-  ) then
-    create trigger set_updated_at_topics
-    before update on public.topics
-    for each row execute function public.set_updated_at();
-  end if;
-end $$;
+drop trigger if exists set_updated_at_topics on public.topics;
+create trigger set_updated_at_topics
+before update on public.topics
+for each row execute function public.set_updated_at();
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_trigger
-    where tgname = 'set_updated_at_profiles'
-  ) then
-    create trigger set_updated_at_profiles
-    before update on public.profiles
-    for each row execute function public.set_updated_at();
-  end if;
-end $$;
+drop trigger if exists set_updated_at_profiles on public.profiles;
+create trigger set_updated_at_profiles
+before update on public.profiles
+for each row execute function public.set_updated_at();
 
-do $$
+create or replace function public.handle_new_user_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $fn$
 begin
-  if not exists (
-    select 1
-    from pg_trigger
-    where tgname = 'handle_new_user_profile'
-  ) then
-    create or replace function public.handle_new_user_profile()
-    returns trigger
-    language plpgsql
-    security definer
-    set search_path = public
-    as $fn$
-    begin
-      insert into public.profiles (id, display_name)
-      values (new.id, coalesce(new.raw_user_meta_data->>'display_name', ''))
-      on conflict (id) do nothing;
-      return new;
-    end;
-    $fn$;
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', ''))
+  on conflict (id) do nothing;
+  return new;
+end;
+$fn$;
 
-    create trigger handle_new_user_profile
-    after insert on auth.users
-    for each row execute function public.handle_new_user_profile();
-  end if;
-end $$;
+drop trigger if exists handle_new_user_profile on auth.users;
+create trigger handle_new_user_profile
+after insert on auth.users
+for each row execute function public.handle_new_user_profile();
 
 alter table public.languages enable row level security;
 alter table public.profiles enable row level security;
