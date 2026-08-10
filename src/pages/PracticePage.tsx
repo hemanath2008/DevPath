@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { languages } from '../content/languages';
-import { getPracticeQuestions, submitPracticeAttempt, MockPracticeQuestion } from '../lib/db';
+import { getPracticeQuestions, submitPracticeAttempt } from '../lib/db';
+import type { MockPracticeQuestion } from '../lib/db';
 import { runCodeWithPiston } from '../services/executionGateway/piston';
 
 export function PracticePage() {
@@ -254,7 +255,7 @@ export function PracticePage() {
                 
                 {/* Parse prompt formatting */}
                 <div className="muted" style={{ fontSize: 15, lineHeight: 1.6 }}>
-                  {selectedQuestion.prompt.split('\n').map((line, idx) => (
+                  {selectedQuestion.prompt.split('\n').map((line: string, idx: number) => (
                     <p key={idx} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>') }} />
                   ))}
                 </div>
@@ -264,7 +265,7 @@ export function PracticePage() {
               <section className="card" style={{ padding: 20 }}>
                 <h3 style={{ marginBottom: 12 }}>Validation Test Cases</h3>
                 <div className="grid" style={{ gap: 10 }}>
-                  {selectedQuestion.testCases.map((tc, idx) => {
+                  {selectedQuestion.testCases.map((tc: any, idx: number) => {
                     const status = testResults[idx] || 'not_run';
                     let statusLabel = 'Not tested';
                     let pillClass = 'pill';
@@ -296,7 +297,7 @@ export function PracticePage() {
                 <section className="card" style={{ padding: 20 }}>
                   <h3 style={{ marginBottom: 12 }}>Hints & Tips</h3>
                   <div className="grid" style={{ gap: 10 }}>
-                    {selectedQuestion.hints.map((hint, idx) => {
+                    {selectedQuestion.hints.map((hint: string, idx: number) => {
                       const isUnlocked = unlockedHints[idx];
                       return (
                         <div key={idx} className="card" style={{ padding: 12, borderStyle: isUnlocked ? 'solid' : 'dashed', borderColor: isUnlocked ? 'rgba(99, 102, 241, 0.3)' : 'rgba(148, 163, 184, 0.2)' }}>
