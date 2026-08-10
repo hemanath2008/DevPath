@@ -22,9 +22,22 @@ export function Layout({ children }: Props) {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     supabase.auth.getUser().then(({ data }) => {
-      setSessionEmail(data.user?.email ?? null);
+      if (mounted) {
+        setSessionEmail(data.user?.email ?? null);
+      }
     });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSessionEmail(session?.user.email ?? null);
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return (
