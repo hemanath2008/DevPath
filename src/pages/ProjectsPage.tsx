@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { languages } from '../content/languages';
-import { getProjects, MockProject } from '../lib/db';
+import { getProjects } from '../lib/db';
+import type { MockProject } from '../lib/db';
 
 export function ProjectsPage() {
   const [projects, setProjects] = useState<MockProject[]>([]);
@@ -50,7 +51,7 @@ export function ProjectsPage() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    {proj.languageIds.map(langId => {
+                    {proj.languageIds.map((langId: string) => {
                       const langConfig = languages.find(l => l.id === langId);
                       return <span key={langId} className="pill" style={{ padding: '2px 8px', fontSize: 11 }}>{langConfig?.displayName || langId}</span>;
                     })}
@@ -80,7 +81,7 @@ export function ProjectsPage() {
             <section className="card" style={{ padding: 18 }}>
               <h3 style={{ fontSize: 16, marginBottom: 12 }}>Project Milestones</h3>
               <div className="grid" style={{ gap: 10 }}>
-                {selectedProject.milestones.map((ms, idx) => (
+                {selectedProject.milestones.map((ms: any, idx: number) => (
                   <div
                     key={idx}
                     className="card"

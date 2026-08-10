@@ -194,7 +194,7 @@ let isAdmin = false;
 Use the globally available \`console.log()\` to write to standard output:
 \`\`\`javascript
 console.log("Hello, developer!");
-console.log(`Pi value is: ${pi}`); // Template literal expression
+console.log(\`Pi value is: \${pi}\`); // Template literal expression
 \`\`\``
   },
   {

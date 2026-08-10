@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { languages, mockTopics } from '../content/languages';
+import { languages } from '../content/languages';
+import { mockTopics } from '../content/mockData';
 import { getLessons, getQuizQuestions, getProgress, completeTopic, ProgressEntry, MockLesson, MockQuizQuestion } from '../lib/db';
 
 export function LearnPage() {
@@ -166,7 +167,7 @@ export function LearnPage() {
             <p className="muted">No topics registered for this language.</p>
           ) : (
             allowedTopics.map((topicId, idx) => {
-              const topicMeta = mockTopics.find(t => t.id === topicId) || { title: topicId, description: '' };
+              const topicMeta = mockTopics.find((t: any) => t.id === topicId) || { title: topicId, description: '' };
               const isCompleted = progress.some(p => p.topic_id === topicId && p.status === 'completed');
               const isActive = selectedTopicId === topicId;
 
@@ -198,7 +199,7 @@ export function LearnPage() {
         {selectedTopicId && (
           <div className="card animate-fade-in" style={{ padding: 24 }}>
             {(() => {
-              const topicMeta = mockTopics.find(t => t.id === selectedTopicId);
+              const topicMeta = mockTopics.find((t: any) => t.id === selectedTopicId);
               const lesson = lessons.find(l => l.topicId === selectedTopicId);
               const isCompleted = progress.some(p => p.topic_id === selectedTopicId && p.status === 'completed');
 
@@ -226,7 +227,7 @@ export function LearnPage() {
 
                   {/* Render Markdown-like content manually or using pre */}
                   <div className="lesson-body">
-                    {lesson.content.split('\n\n').map((paragraph, index) => {
+                    {lesson.content.split('\n\n').map((paragraph: string, index: number) => {
                       if (paragraph.startsWith('###')) {
                         return <h3 key={index}>{paragraph.replace('###', '').trim()}</h3>;
                       }
@@ -239,7 +240,7 @@ export function LearnPage() {
                       if (paragraph.startsWith('* ') || paragraph.startsWith('- ')) {
                         return (
                           <ul key={index} className="muted" style={{ paddingLeft: 20 }}>
-                            {paragraph.split('\n').map((li, idx) => (
+                            {paragraph.split('\n').map((li: string, idx: number) => (
                               <li key={idx} style={{ marginBottom: 4 }}>{li.replace(/^[\*\-]\s+/, '')}</li>
                             ))}
                           </ul>
@@ -289,7 +290,7 @@ export function LearnPage() {
                         <p style={{ fontWeight: 600, fontSize: 16, marginBottom: 16 }}>{quizzes[currentQuizIndex].prompt}</p>
 
                         <div className="grid" style={{ gap: 10 }}>
-                          {quizzes[currentQuizIndex].options.map((option) => {
+                          {quizzes[currentQuizIndex].options.map((option: string) => {
                             const isSelected = selectedAnswer === option;
                             const isCorrectAnswer = option === quizzes[currentQuizIndex].correctAnswer;
                             let cardClass = 'quiz-option-card';

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { languages } from '../content/languages';
-import { getSyntaxExamples, MockSyntaxExample } from '../lib/db';
+import { getSyntaxExamples } from '../lib/db';
+import type { MockSyntaxExample } from '../lib/db';
 
 export function SyntaxPage() {
   const [examples, setExamples] = useState<MockSyntaxExample[]>([]);

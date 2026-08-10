@@ -12,6 +12,8 @@ import {
   MockProject
 } from '../content/mockData';
 
+export type { MockLesson, MockQuizQuestion, MockSyntaxExample, MockPracticeQuestion, MockProject };
+
 export type UserProfile = {
   id: string;
   display_name: string;
