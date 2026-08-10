@@ -172,30 +172,32 @@ while count > 0:
     title: 'JavaScript Variables, Let, Const, and Console',
     slug: 'js-variables-console',
     orderIndex: 1,
-    content: `### Welcome to JavaScript!
-
-JavaScript is the scripting language of the web. Modern JS uses \`let\` and \`const\` to manage variables scope.
-
-#### Declarations
-* \`const\`: Declares a read-only reference variable that cannot be reassigned.
-* \`let\`: Declares a reassignable block-scoped variable.
-* \`var\`: Older function-scoped variable (generally avoided now).
-
-\`\`\`javascript
-const pi = 3.14159;
-let score = 0;
-score += 10; // Allowed!
-
-let name = "Alex";
-let isAdmin = false;
-\`\`\`
-
-#### Console Logging
-Use the globally available \`console.log()\` to write to standard output:
-\`\`\`javascript
-console.log("Hello, developer!");
-console.log(\`Pi value is: \${pi}\`); // Template literal expression
-\`\`\``
+    content: [
+      '### Welcome to JavaScript!',
+      '',
+      'JavaScript is the scripting language of the web. Modern JS uses `let` and `const` to manage variable scope.',
+      '',
+      '#### Declarations',
+      '* `const`: Declares a read-only reference variable that cannot be reassigned.',
+      '* `let`: Declares a reassignable block-scoped variable.',
+      '* `var`: Older function-scoped variable (generally avoided now).',
+      '',
+      '```javascript',
+      'const pi = 3.14159;',
+      'let score = 0;',
+      'score += 10; // Allowed!',
+      '',
+      'let name = "Alex";',
+      'let isAdmin = false;',
+      '```',
+      '',
+      '#### Console Logging',
+      'Use the globally available `console.log()` to write to standard output:',
+      '```javascript',
+      'console.log("Hello, developer!");',
+      'console.log("Pi value is: " + pi); // Template literal expression',
+      '```',
+    ].join('\n')
   },
   {
     id: 11,
