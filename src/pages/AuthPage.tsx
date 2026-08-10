@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export function AuthPage() {
@@ -7,14 +7,19 @@ export function AuthPage() {
   const [message, setMessage] = useState('Sign in or create an account with Supabase Auth.');
   const [busy, setBusy] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(mode: 'signIn' | 'signUp') {
     setBusy(true);
-    setMessage('Working…');
+    setMessage(mode === 'signIn' ? 'Signing in…' : 'Creating account…');
     try {
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (signUpError) throw signUpError;
-      setMessage('If email confirmations are enabled, check your inbox. Otherwise you are signed in.');
+      if (mode === 'signIn') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        setMessage('Signed in.');
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        setMessage('If email confirmations are enabled, check your inbox. Otherwise you are signed in.');
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Authentication failed');
     } finally {
@@ -31,7 +36,7 @@ export function AuthPage() {
     <section className="card" style={{ padding: 24, maxWidth: 520 }}>
       <h1>Auth</h1>
       <p className="muted">{message}</p>
-      <form onSubmit={handleSubmit} className="grid" style={{ gap: 12 }}>
+      <form className="grid" style={{ gap: 12 }} onSubmit={(event) => event.preventDefault()}>
         <label className="grid">
           <span>Email</span>
           <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required />
@@ -41,8 +46,11 @@ export function AuthPage() {
           <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" required minLength={6} />
         </label>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <button className="btn" disabled={busy} type="submit">
-            {busy ? 'Saving…' : 'Sign up / Sign in'}
+          <button className="btn" disabled={busy} type="button" onClick={() => handleSubmit('signIn')}>
+            {busy ? 'Working…' : 'Sign in'}
+          </button>
+          <button className="btn secondary" disabled={busy} type="button" onClick={() => handleSubmit('signUp')}>
+            {busy ? 'Working…' : 'Sign up'}
           </button>
           <button className="btn secondary" type="button" onClick={handleLogout}>
             Sign out
