@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { languages } from '../content/languages';
 import { runCodeWithPiston } from '../services/executionGateway/piston';
 
@@ -17,6 +17,20 @@ export function CompilerPage() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [running, setRunning] = useState(false);
+
+  // Check for templates transferred from other panels
+  useEffect(() => {
+    const presetCode = localStorage.getItem('codeeasy_compiler_preset_code');
+    const presetLang = localStorage.getItem('codeeasy_compiler_preset_lang');
+    if (presetCode) {
+      setCode(presetCode);
+      localStorage.removeItem('codeeasy_compiler_preset_code');
+    }
+    if (presetLang) {
+      setLanguage(presetLang);
+      localStorage.removeItem('codeeasy_compiler_preset_lang');
+    }
+  }, []);
 
   async function handleRun() {
     setRunning(true);
