@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { ReactNode, useEffect, useState } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 type Props = {
   children: ReactNode;
@@ -22,6 +22,10 @@ export function Layout({ children }: Props) {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      return;
+    }
+
     let mounted = true;
 
     supabase.auth.getUser().then(({ data }) => {

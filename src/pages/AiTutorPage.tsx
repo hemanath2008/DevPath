@@ -2,15 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { languages } from '../content/languages';
 import { getLocalChatHistory, saveLocalChatHistory, ChatMessage } from '../lib/db';
 
+// Env-configured Gemini API key (set in .env as VITE_GEMINI_API_KEY)
+const ENV_GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+
 export function AiTutorPage() {
   const [activeLang, setActiveLang] = useState('python');
+  // Priority: localStorage override → env variable → empty (simulation mode)
   const [apiKey, setApiKey] = useState(() => {
-    return localStorage.getItem('codeeasy_gemini_key') || '';
+    return localStorage.getItem('codeeasy_gemini_key') || ENV_GEMINI_KEY || '';
   });
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState('');
   const [generating, setGenerating] = useState(false);
   const [showKeyInput, setShowKeyInput] = useState(false);
+  const isEnvKeyActive = !!(ENV_GEMINI_KEY && apiKey === ENV_GEMINI_KEY);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +91,7 @@ export function AiTutorPage() {
         }
 
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -95,7 +100,13 @@ export function AiTutorPage() {
         );
 
         if (!response.ok) {
-          throw new Error(`Gemini API Error (Status ${response.status})`);
+          // Read the full error body so we can show the exact Google error message
+          let errorDetail = `Status ${response.status}`;
+          try {
+            const errBody = await response.json();
+            errorDetail = `Status ${response.status} — ${errBody?.error?.message || JSON.stringify(errBody)}`;
+          } catch (_) { /* ignore JSON parse failures */ }
+          throw new Error(`Gemini API Error: ${errorDetail}`);
         }
 
         const data = await response.json();
@@ -219,7 +230,7 @@ value = 100
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button className="btn secondary" onClick={() => setShowKeyInput(!showKeyInput)}>
-              🔑 {apiKey ? 'Update API Key' : 'Configure Gemini API Key'}
+              🔑 {isEnvKeyActive ? 'API Key (Pre-configured)' : apiKey ? 'Update API Key' : 'Configure Gemini API Key'}
             </button>
             <button className="btn secondary" onClick={handleClearChat}>
               ✕ Clear Chat
@@ -231,14 +242,21 @@ value = 100
         {showKeyInput && (
           <div className="card animate-fade-in" style={{ padding: 16, marginTop: 16, background: 'rgba(15, 23, 42, 0.6)' }}>
             <h4 style={{ margin: '0 0 8px 0' }}>Google Gemini API Key</h4>
+            {isEnvKeyActive && (
+              <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', borderRadius: 8 }}>
+                <span style={{ color: '#4ade80', fontSize: 13 }}>✅ API key is pre-configured via environment variable. The chatbot is ready to use!</span>
+              </div>
+            )}
             <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
-              Get a free API key from the Google AI Studio. The key is saved locally in your browser storage and never sent elsewhere.
+              {isEnvKeyActive
+                ? 'You can optionally override the pre-configured key by pasting a different one below.'
+                : 'Get a free API key from the Google AI Studio. The key is saved locally in your browser storage and never sent elsewhere.'}
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <input
                 type="password"
-                placeholder="Paste AI Studio Key here..."
-                defaultValue={apiKey}
+                placeholder={isEnvKeyActive ? 'Override with a different key (optional)...' : 'Paste AI Studio Key here...'}
+                defaultValue={isEnvKeyActive ? '' : apiKey}
                 id="gemini-key-input"
                 style={{ flex: 1 }}
               />
@@ -246,10 +264,10 @@ value = 100
                 className="btn"
                 onClick={() => {
                   const val = (document.getElementById('gemini-key-input') as HTMLInputElement)?.value || '';
-                  handleSaveKey(val);
+                  handleSaveKey(val || ENV_GEMINI_KEY || '');
                 }}
               >
-                Save Key
+                {isEnvKeyActive ? 'Override Key' : 'Save Key'}
               </button>
             </div>
           </div>
@@ -290,8 +308,8 @@ value = 100
           </section>
 
           <div style={{ padding: 10, textAlign: 'center' }}>
-            <span className="pill success" style={{ fontSize: 11 }}>
-              {apiKey ? 'REAL GEMINI ACTIVE' : 'RUNNING IN SIMULATION'}
+            <span className={`pill ${apiKey ? 'success' : 'warning'}`} style={{ fontSize: 11 }}>
+              {isEnvKeyActive ? '🚀 GEMINI READY' : apiKey ? '✅ GEMINI ACTIVE' : '⚠️ SIMULATION MODE'}
             </span>
           </div>
         </div>

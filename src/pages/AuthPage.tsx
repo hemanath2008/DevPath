@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 export function AuthPage() {
   const [email, setEmail] = useState('');
@@ -8,6 +8,11 @@ export function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   async function handleSubmit(mode: 'signIn' | 'signUp') {
+    if (!isSupabaseConfigured || !supabase) {
+      setMessage('Supabase is not configured in this environment.');
+      return;
+    }
+
     setBusy(true);
     setMessage(mode === 'signIn' ? 'Signing in…' : 'Creating account…');
     try {
@@ -28,6 +33,11 @@ export function AuthPage() {
   }
 
   async function handleLogout() {
+    if (!isSupabaseConfigured || !supabase) {
+      setMessage('Supabase is not configured in this environment.');
+      return;
+    }
+
     await supabase.auth.signOut();
     setMessage('Signed out.');
   }
